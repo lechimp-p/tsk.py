@@ -1,3 +1,3 @@
-from .tsk import task
+from .tsk import task, LoopError
 
-__all__ = ["task"]
+__all__ = ["task", "LoopError"]
