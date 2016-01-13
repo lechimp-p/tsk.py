@@ -1,5 +1,4 @@
-from nose.tools import *
-import blg
+from tsk import * 
 
 _log = [[]]
 
@@ -19,3 +18,26 @@ def test_log():
     log("bar")
 
     assert log() == ["foo", "bar"]
+
+@task
+def make_foobar():
+    foo = yield make_foo()
+    bar = yield make_bar()
+    log(foo + bar)
+    yield foo + bar
+
+@task
+def make_foo():
+    log("foo")
+    yield "foo"
+
+@task
+def make_bar():
+    log("bar")
+    yield "bar"
+
+def test_make_foobar():
+    res = make_foobar.run()
+
+    assert res == "foobar"
+    assert log() == ["foo", "bar", "foobar"]
