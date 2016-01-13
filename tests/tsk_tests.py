@@ -131,3 +131,6 @@ def test_detect_loops():
         assert False
     except LoopError:
         pass
+
+def test_props():
+    assert make_loop.__name__ == "make_loop"
