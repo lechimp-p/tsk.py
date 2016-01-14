@@ -36,8 +36,14 @@ def make_bar():
     log("bar")
     yield "bar"
 
+def test_make_foo():
+    res = make_foo().run()
+
+    assert res == "foo"
+    assert log() == ["foo"]
+
 def test_make_foobar():
-    res = make_foobar.run()
+    res = make_foobar().run()
 
     assert res == "foobar"
     assert log() == ["foo", "bar", "foobar"]
@@ -49,7 +55,7 @@ def make_foofoo():
     yield foo1 + foo2
 
 def test_dont_run_twice():
-    res = make_foofoo.run()
+    res = make_foofoo().run()
 
     assert res == "foofoo"
     assert log() == ["foo"]
@@ -67,7 +73,7 @@ def make_123():
     yield "%d%d%d" % (v1, v2, v3)
 
 def test_with_params():
-    res = make_123.run()
+    res = make_123().run()
 
     assert res == "123"
     assert log() ==  [1,2,3]
@@ -80,7 +86,7 @@ def make_111():
     yield "%d%d%d" % (v1, v2, v3)
 
 def test_dont_run_twice_with_params():
-    res = make_111.run()
+    res = make_111().run()
 
     assert res == "111"
     assert log() == [1]
@@ -92,7 +98,7 @@ def make_foobar_par():
     yield foo + bar
 
 def test_run_par():
-    res = make_foobar_par.run()
+    res = make_foobar_par().run()
 
     assert res == "foobar"
     assert log() == ["foo", "bar", "foobar"]
@@ -103,7 +109,7 @@ def make_123_par():
     yield "%d%d%d" % (v1, v2, v3)
 
 def test_run_par_with_params():
-    res = make_123_par.run()
+    res = make_123_par().run()
 
     assert res == "123"
     assert log() ==  [1,2,3]
@@ -115,7 +121,7 @@ def make_barfoobar():
     yield bar + foobar
 
 def test_run_nested():
-    res = make_barfoobar.run()
+    res = make_barfoobar().run()
 
     assert res == "barfoobar"
     assert log() == ["bar", "foo", "foobar"] 
@@ -127,7 +133,7 @@ def make_loop():
 
 def test_detect_loops():
     try:
-        make_loop.run()
+        make_loop().run()
         assert False
     except LoopError:
         pass
