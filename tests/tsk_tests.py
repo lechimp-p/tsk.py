@@ -8,7 +8,7 @@
 #
 
 from nose.tools import with_setup
-from tsk import * 
+from tsk.tsk import *
 
 _log = [["foo"]]
 

@@ -7,6 +7,6 @@
 # received a copy of the LICENSE with the code.
 #
 
-from .tsk import task, LoopError
+from .tsk import task
 
-__all__ = ["task", "LoopError"]
+__all__ = ["task"]
