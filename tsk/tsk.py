@@ -64,6 +64,7 @@ class VM(object):
 
     def result(self):
         made_progress = True
+        finished_last_goal = False
 
         while True:
             # If we neither solved a goal nor got any new goals,
@@ -75,7 +76,7 @@ class VM(object):
             next_goal = self.goals[-1]
 
             # This is when all work is done
-            if len(self.goals) == 1 and next_goal in self.results:
+            if finished_last_goal:
                 return self.results[next_goal]
 
             state = self.get_state(next_goal)
@@ -83,7 +84,18 @@ class VM(object):
             results = self.get_results_for(requires)
 
             if self.has_required_results(requires, results):
-                res = state.send(results)
+                try:
+                    res = state.send(results)
+                except StopIteration:
+                     # We might have finished the last goal ...
+                    if len(self.goals) > 1:
+                        # ... but if it was intermediate we don't
+                        # need it anymore.
+                        self.goals.pop()
+                    else:
+                        finished_last_goal = True
+                    continue
+
 
                 # We either need to fullfill new goals ...
                 if self.is_new_requires(res):
@@ -92,12 +104,9 @@ class VM(object):
                 else:
                     made_progress = True
                     del self.requires[next_goal]
+                    if next_goal in self.results:
+                        raise DoubleResultError()
                     self.results[next_goal] = res
-                    # We might have finished the last goal ...
-                    if len(self.goals) > 1:
-                        # ... but if it was intermediate we don't
-                        # need it anymore.
-                        self.goals.pop()
 
     def get_state(self, tc):
         if not tc in self.states:
