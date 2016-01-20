@@ -65,10 +65,7 @@ class VM(object):
     def result(self):
         made_progress = True
 
-        count = 0
-
-        while True and count < 10:
-            count += 1
+        while True:
             # If we neither solved a goal nor got any new goals,
             # we loop infinitely
             if not made_progress:
