@@ -39,7 +39,6 @@ def make_bar():
 def test_make_foo():
     res = make_foo().run()
 
-    print log()
     assert res == "foo"
     assert log() == ["foo"]
 
@@ -48,15 +47,12 @@ def test_make_foobar():
     res = make_foobar().run()
 
     assert res == "foobar"
-    print log()
     assert log() == ["foo", "bar", "foobar"]
 
 @task
 def make_foofoo():
     foo1 = yield make_foo()
-    print "got it 1: %s" % foo1
     foo2 = yield make_foo()
-    print "got it 2: %s" % foo2
     yield foo1 + foo2
 
 @with_setup(setup_function)
@@ -110,7 +106,6 @@ def test_run_par():
     res = make_foobar_par().run()
 
     assert res == "foobar"
-    print log()
     assert log() == ["foo", "bar", "foobar"]
 
 @task
