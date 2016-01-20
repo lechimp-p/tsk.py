@@ -202,3 +202,16 @@ def test_no_double_result():
         assert False
     except DoubleResultError:
         pass
+
+@task
+def make_foo_spawn_foobar():
+    yield "foo"
+    foobar = yield make_foobar()
+    log(foobar)
+
+@with_setup(setup_function)
+def test_early_result_with_new_task():
+    res = make_foo_spawn_foobar().run()
+
+    assert res == "foo"
+    assert log() == ["foo", "foobar"]
