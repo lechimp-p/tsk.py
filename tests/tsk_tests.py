@@ -216,3 +216,25 @@ def test_early_result_with_new_task():
 
     assert res == "foo"
     assert log() == ["foo_spawn", "foo", "bar", "foobar", "foobar_spawn"]
+
+@task
+def make_foo_teardown():
+    yield "foo"
+    log("teardown")
+    yield make_foofoo_contreived()
+
+@task
+def make_foofoo_contreived():
+    foo1 = yield make_foo_teardown()
+    foo2 = yield make_foo_teardown()
+    yield foo1 + foo2
+    yield make_foo_teardown()
+
+@with_setup(setup_function)
+def test_exchange_initial_goal():
+    # I should be able to execute this, as i already have
+    # all results i need. There is no LoopError.
+    res = make_foofoo_contreived().run()
+
+    assert res == "foofoo"
+    assert log() == ["teardown"]
