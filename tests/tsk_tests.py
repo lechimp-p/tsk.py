@@ -205,13 +205,14 @@ def test_no_double_result():
 
 @task
 def make_foo_spawn_foobar():
+    log("foo_spawn")
     yield "foo"
     foobar = yield make_foobar()
-    log(foobar)
+    log(foobar + "_spawn")
 
 @with_setup(setup_function)
 def test_early_result_with_new_task():
     res = make_foo_spawn_foobar().run()
 
     assert res == "foo"
-    assert log() == ["foo", "foobar"]
+    assert log() == ["foo_spawn", "foo", "bar", "foobar", "foobar_spawn"]
