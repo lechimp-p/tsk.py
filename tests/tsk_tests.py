@@ -176,3 +176,29 @@ def test_detect_long_loop():
 @with_setup(setup_function)
 def test_props():
     assert make_loop.__name__ == "make_loop"
+
+@task
+def make_foo_early():
+    log("before")
+    yield "foo"
+    log("after")
+
+@with_setup(setup_function)
+def test_early_result():
+    res = make_foo_early().run()
+
+    assert res == "foo"
+    assert log() == ["before", "after"]
+
+@task
+def make_foo_and_then_bar():
+    yield "foo"
+    yield "bar"
+
+@with_setup(setup_function)
+def test_no_double_result():
+    try:
+        make_foo_and_then_bar().run()
+        assert False
+    except DoubleResultError:
+        pass
