@@ -163,7 +163,11 @@ class VM(object):
                 return tup
         return None
 
-
-class LoopError(RuntimeError):
+class TaskError(RuntimeError):
     pass
 
+class LoopError(TaskError):
+    pass
+
+class DoubleResultError(TaskError):
+    pass
