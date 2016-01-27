@@ -142,7 +142,7 @@ class VM(object):
                 # But we surely made no progress, if we still need
                 # a result for the original task or the task it
                 # requires.
-                made_progress = (tc in self.results) or (r in self.results)
+                made_progress = made_progress or (tc in self.results) or (r in self.results)
             else:
                 # We need to solve that goal if we did not
                 # solve it earlier.
