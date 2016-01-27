@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/lechimp-p/tsk.svg?branch=master)](https://travis-ci.org/lechimp-p/task)
+[![Build Status](https://travis-ci.org/lechimp-p/tsk.py.svg?branch=master)](https://travis-ci.org/lechimp-p/tsk.py)
 
 # tsk.py
 
