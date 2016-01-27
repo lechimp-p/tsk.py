@@ -59,12 +59,12 @@ def make_page(page):
 
     # And we could still retreive the result from make_index. If there
     # is a re
-    index_url = make_index()
+    index_url = yield make_index()
 
     rendered_pages.add(page)
 
-# Then just run the task.
-make_index().run()
+# Then just a task and all the tasks it depends on.
+make_page("one").run()
 
 # The engine ensures, that each task only runs once for every distinct
 # combination of arguments to it.
