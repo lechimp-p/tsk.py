@@ -126,11 +126,6 @@ class VM(object):
                 or (isinstance(res, types.TupleType)
                     and all((isinstance(s, TaskCall) for s in res))))
 
-    @staticmethod
-    def has_required_results(requires, results):
-        return ((requires == tuple() and results == None)
-                or not results is None)
-
     def set_requires(self, tc, requires):
         if not isinstance(requires, types.TupleType):
             requires = (requires,)
