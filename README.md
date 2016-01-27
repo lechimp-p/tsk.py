@@ -10,7 +10,7 @@ For me that situation occured when writing a static page generator. I wanted to
 generate pages automatically when they were required via a link in another page,
 but then i only wanted to generate them once. I could have solved it with a
 cache or something, but i might have found a slightly more general and maybe
-neater approach.
+neater approach abusing generators.
 
 # Example using some Stubs
 
