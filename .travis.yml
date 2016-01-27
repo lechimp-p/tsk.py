@@ -8,5 +8,5 @@ python:
 install:
     - pip install .
     - pip install dont-fudge-up
-    - pip install nosetests
+    - pip install nose
 script: nosetests
