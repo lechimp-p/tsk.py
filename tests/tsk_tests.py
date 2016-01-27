@@ -229,6 +229,7 @@ def make_foofoo_contreived():
     foo2 = yield make_foo_teardown()
     yield foo1 + foo2
     yield make_foo_teardown()
+    log("foofoo")
 
 @with_setup(setup_function)
 def test_exchange_initial_goal():
@@ -237,4 +238,4 @@ def test_exchange_initial_goal():
     res = make_foofoo_contreived().run()
 
     assert res == "foofoo"
-    assert log() == ["teardown"]
+    assert log() == ["teardown", "foofoo"]

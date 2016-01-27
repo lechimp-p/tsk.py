@@ -83,30 +83,29 @@ class VM(object):
             requires = self.get_requires(next_goal)
             results = self.get_results_for(requires)
 
-            if self.has_required_results(requires, results):
-                try:
-                    res = state.send(results)
-                except StopIteration:
-                     # We might have finished the last goal ...
-                    if len(self.goals) > 1:
-                        # ... but if it was intermediate we don't
-                        # need it anymore.
-                        self.goals.pop()
-                    else:
-                        finished_last_goal = True
-                    continue
-
-
-                # We either need to fullfill new goals ...
-                if self.is_new_requires(res):
-                    made_progress = self.set_requires(next_goal, res)
-                # ... or have a result.
+            try:
+                res = state.send(results)
+            except StopIteration:
+                 # We might have finished the last goal ...
+                if len(self.goals) > 1:
+                    # ... but if it was intermediate we don't
+                    # need it anymore.
+                    self.goals.pop()
                 else:
-                    made_progress = True
-                    del self.requires[next_goal]
-                    if next_goal in self.results:
-                        raise DoubleResultError()
-                    self.results[next_goal] = res
+                    finished_last_goal = True
+                continue
+
+
+            # We either need to fullfill new goals ...
+            if self.is_new_requires(res):
+                made_progress = self.set_requires(next_goal, res)
+            # ... or have a result.
+            else:
+                made_progress = True
+                del self.requires[next_goal]
+                if next_goal in self.results:
+                    raise DoubleResultError()
+                self.results[next_goal] = res
 
     def get_state(self, tc):
         if not tc in self.states:
@@ -145,7 +144,10 @@ class VM(object):
             if r in self.goals:
                 self.goals.remove(r)
                 self.goals.append(r)
-                # But we surely made no progress...
+                # But we surely made no progress, if we still need
+                # a result for the original task or the task it
+                # requires.
+                made_progress = (tc in self.results) or (r in self.results)
             else:
                 # We need to solve that goal if we did not
                 # solve it earlier.
