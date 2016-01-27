@@ -12,7 +12,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-config =
+config = (
     { "description" : "A utility to run tasks."
     , "author" : "Richard Klees"
     , "author_email" : "richard.klees@rwth-aachen.de"
@@ -21,6 +21,6 @@ config =
     , "packages" : ["tsk"]
     , "scripts" : []
     , "name" : "tsk"
-    }
+    })
 
 setup(**config)
