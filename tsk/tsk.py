@@ -123,11 +123,11 @@ class VM(object):
     @staticmethod
     def is_new_requires(res):
         return (isinstance(res, TaskCall)
-                or (isinstance(res, types.TupleType)
+                or (isinstance(res, tuple)
                     and all((isinstance(s, TaskCall) for s in res))))
 
     def set_requires(self, tc, requires):
-        if not isinstance(requires, types.TupleType):
+        if not isinstance(requires, tuple):
             requires = (requires,)
         self.requires[tc] = requires
 
