@@ -49,7 +49,7 @@ def make_index():
 @task
 def make_page(page):
     # We return the url of the rendered page here early, to not run
-    # in the lock i mentioned earlier. I would do this as well in
+    # in the loop i mentioned earlier. I would do this as well in
     # in make_index in reality, but i defered that trick for dramatic
     # purpose.
 
