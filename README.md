@@ -58,7 +58,7 @@ def make_page(page):
     # The task will go on even if it returned a result earlier on.
 
     # And we could still retreive the result from make_index. If there
-    # is a re
+    # is a result, the task will go on.
     index_url = yield make_index()
 
     rendered_pages.add(page)
