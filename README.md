@@ -63,7 +63,7 @@ def make_page(page):
 
     rendered_pages.add(page)
 
-# Then just a task and all the tasks it depends on.
+# Then just run a task and all the tasks it depends on.
 make_page("one").run()
 
 # The engine ensures, that each task only runs once for every distinct
