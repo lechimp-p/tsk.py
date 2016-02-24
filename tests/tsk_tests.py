@@ -241,7 +241,7 @@ def test_exchange_initial_goal():
     assert log() == ["teardown", "foofoo"]
 
 @with_setup(setup_function)
-def test_with_log_task_entry():
+def test_with_log_task_simple():
     _log = []
 
     res = make_foobar().run(log = lambda msg: _log.append(msg))
@@ -284,3 +284,61 @@ def test_with_log_task_entry():
     assert l5.task.__name__ == "make_foobar"
     assert l5.args == ()
     assert [t.task.__name__ for t in l5.dependents] == []
+
+@with_setup(setup_function)
+def test_with_log_task_args():
+    _log = []
+
+    res = make_123().run(log = lambda msg: _log.append(msg))
+
+    assert res == "123"
+    assert len(_log) == 8
+
+    l0 = _log[0]
+    assert isinstance(l0, EnteredTask)
+    assert l0.task.__name__ == "make_123"
+    assert l0.args == ()
+    assert [t.task.__name__ for t in l0.dependents] == []
+
+    l1 = _log[1]
+    assert isinstance(l1, EnteredTask)
+    assert l1.task.__name__ == "make_num"
+    assert l1.args == (1,)
+    assert [t.task.__name__ for t in l1.dependents] == ["make_123"]
+
+    l2 = _log[2]
+    assert isinstance(l2, CompletedTask)
+    assert l2.task.__name__ == "make_num"
+    assert l2.args == (1,)
+    assert [t.task.__name__ for t in l2.dependents] == ["make_123"]
+
+    l3 = _log[3]
+    assert isinstance(l3, EnteredTask)
+    assert l3.task.__name__ == "make_num"
+    assert l3.args == (2,)
+    assert [t.task.__name__ for t in l3.dependents] == ["make_123"]
+
+    l4 = _log[4]
+    assert isinstance(l4, CompletedTask)
+    assert l4.task.__name__ == "make_num"
+    assert l4.args == (2,)
+    assert [t.task.__name__ for t in l4.dependents] == ["make_123"]
+
+    l5 = _log[5]
+    assert isinstance(l5, EnteredTask)
+    assert l5.task.__name__ == "make_num"
+    assert l5.args == (3,)
+    assert [t.task.__name__ for t in l5.dependents] == ["make_123"]
+
+    l6 = _log[6]
+    assert isinstance(l6, CompletedTask)
+    assert l6.task.__name__ == "make_num"
+    assert l6.args == (3,)
+    assert [t.task.__name__ for t in l6.dependents] == ["make_123"]
+
+    l7 = _log[7]
+    assert isinstance(l7, CompletedTask)
+    assert l7.task.__name__ == "make_123"
+    assert l7.args == ()
+    assert [t.task.__name__ for t in l7.dependents] == []
+
