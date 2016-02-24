@@ -239,3 +239,48 @@ def test_exchange_initial_goal():
 
     assert res == "foofoo"
     assert log() == ["teardown", "foofoo"]
+
+@with_setup(setup_function)
+def test_with_log_task_entry():
+    _log = []
+
+    res = make_foobar().run(log = lambda msg: _log.append(msg))
+
+    assert res == "foobar"
+    assert len(_log) == 6
+
+    l0 = _log[0]
+    assert isinstance(l0, EnteredTask)
+    assert l0.task.__name__ == "make_foobar"
+    assert l0.args == ()
+    assert [t.task.__name__ for t in l0.dependents] == []
+
+    l1 = _log[1]
+    assert isinstance(l1, EnteredTask)
+    assert l1.task.__name__ == "make_foo"
+    assert l1.args == ()
+    assert [t.task.__name__ for t in l1.dependents] == ["make_foobar"]
+
+    l2 = _log[2]
+    assert isinstance(l2, CompletedTask)
+    assert l2.task.__name__ == "make_foo"
+    assert l2.args == ()
+    assert [t.task.__name__ for t in l2.dependents] == ["make_foobar"]
+
+    l3 = _log[3]
+    assert isinstance(l3, EnteredTask)
+    assert l3.task.__name__ == "make_bar"
+    assert l3.args == ()
+    assert [t.task.__name__ for t in l3.dependents] == ["make_foobar"]
+
+    l4 = _log[4]
+    assert isinstance(l4, CompletedTask)
+    assert l4.task.__name__ == "make_bar"
+    assert l4.args == ()
+    assert [t.task.__name__ for t in l4.dependents] == ["make_foobar"]
+
+    l5 = _log[5]
+    assert isinstance(l5, CompletedTask)
+    assert l5.task.__name__ == "make_foobar"
+    assert l5.args == ()
+    assert [t.task.__name__ for t in l5.dependents] == []

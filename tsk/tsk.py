@@ -37,8 +37,8 @@ class TaskCall(object):
         tup = namedtuple("Kwargs", kwargs.keys())
         self.kwargs = tup(**kwargs)
 
-    def run(self):
-        vm = VM(self)
+    def run(self, log = None):
+        vm = VM(self, log)
         return vm.result()
 
     def __hash__(self):
@@ -53,8 +53,9 @@ class TaskCall(object):
 
 
 class VM(object):
-    def __init__(self, tc):
+    def __init__(self, tc, log):
         self.tc = tc
+        self.log = (lambda x: None) if log is None else log
 
         self.results = {}       # results that are already known
         self.states = {}        # current states of task calls
@@ -65,6 +66,8 @@ class VM(object):
     def result(self):
         made_progress = True
         finished_last_goal = False
+
+        self.log(EnteredTask(self.tc, []))
 
         while True:
             # If we neither solved a goal nor got any new goals,
@@ -77,6 +80,7 @@ class VM(object):
 
             # This is when all work is done
             if finished_last_goal:
+                self.log(CompletedTask(self.tc, []))
                 return self.results[next_goal]
 
             state = self.get_state(next_goal)
@@ -90,7 +94,10 @@ class VM(object):
                 if len(self.goals) > 1:
                     # ... but if it was intermediate we don't
                     # need it anymore.
+                    tc = self.goals[-1]
+                    deps = self.get_dependents_of(tc)
                     self.goals.pop()
+                    self.log(CompletedTask(tc, deps))
                 else:
                     finished_last_goal = True
                 continue
@@ -148,12 +155,17 @@ class VM(object):
                 # solve it earlier.
                 if not r in self.results:
                     self.goals.append(r)
+                    self.log(EnteredTask(r, self.get_dependents_of(r)))
                 # This is a new goal that is progress, or we
                 # could proceed on the goal that requires it,
                 # that is progress too.
                 made_progress = True
 
         return made_progress
+
+    def get_dependents_of(self, tc):
+        assert self.goals[-1] == tc
+        return self.goals[0:-1]
 
     def get_results_for(self, requires):
         if requires == tuple():
@@ -173,4 +185,28 @@ class LoopError(TaskError):
     pass
 
 class DoubleResultError(TaskError):
+    pass
+
+class LogEntry(object):
+    def __init__(self, task_call, dependency_chain):
+        self.task_call = task_call
+        self.dependency_chain = dependency_chain
+
+    @property
+    def task(self):
+        return self.task_call.task
+
+    @property
+    def args(self):
+        return self.task_call.args
+
+    @property
+    def dependents(self):
+        print self.dependency_chain
+        return self.dependency_chain
+
+class EnteredTask(LogEntry):
+    pass
+
+class CompletedTask(LogEntry):
     pass
