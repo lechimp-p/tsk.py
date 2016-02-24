@@ -62,6 +62,7 @@ class VM(object):
         self.requires = {}      # requirement to advance state of task calls
         self.goals = [self.tc]  # we start with one single goal and stack
                                 # futures goals above
+        self.last_goal = None   # holds the last goal we accomplished (for logging)
 
     def result(self):
         made_progress = True
@@ -98,6 +99,7 @@ class VM(object):
                     deps = self.get_dependents_of(tc)
                     self.goals.pop()
                     self.log(CompletedTask(tc, deps))
+                    self.last_goal = tc
                 else:
                     finished_last_goal = True
                 continue
@@ -164,14 +166,21 @@ class VM(object):
         return made_progress
 
     def get_dependents_of(self, tc):
-        assert self.goals[-1] == tc
-        return self.goals[0:-1]
+        if self.goals[-1] == tc:
+            return self.goals[0:-1]
+        else:
+            return self.goals
 
     def get_results_for(self, requires):
         if requires == tuple():
             return None
         if all((r in self.results for r in requires)):
-            tup = tuple((self.results[r] for r in requires))
+            _tup = []
+            for r in requires:
+                _tup.append(self.results[r])
+                if self.last_goal != r:
+                    self.log(UseResultOfTask(r, self.get_dependents_of(r)))
+            tup = tuple(_tup)
             if len(tup) == 1:
                 return tup[0]
             else:
@@ -208,4 +217,7 @@ class EnteredTask(LogEntry):
     pass
 
 class CompletedTask(LogEntry):
+    pass
+
+class UseResultOfTask(LogEntry):
     pass

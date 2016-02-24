@@ -342,3 +342,42 @@ def test_with_log_task_args():
     assert l7.args == ()
     assert [t.task.__name__ for t in l7.dependents] == []
 
+@with_setup(setup_function)
+def test_with_log_task_reuse_result():
+    _log = []
+
+    res = make_foofoo().run(log = lambda msg: _log.append(msg))
+
+    assert res == "foofoo"
+    assert len(_log) == 5
+
+    l0 = _log[0]
+    assert isinstance(l0, EnteredTask)
+    assert l0.task.__name__ == "make_foofoo"
+    assert l0.args == ()
+    assert [t.task.__name__ for t in l0.dependents] == []
+
+    l1 = _log[1]
+    assert isinstance(l1, EnteredTask)
+    assert l1.task.__name__ == "make_foo"
+    assert l1.args == ()
+    assert [t.task.__name__ for t in l1.dependents] == ["make_foofoo"]
+
+    l2 = _log[2]
+    assert isinstance(l2, CompletedTask)
+    assert l2.task.__name__ == "make_foo"
+    assert l2.args == ()
+    assert [t.task.__name__ for t in l2.dependents] == ["make_foofoo"]
+
+    l3 = _log[3]
+    assert isinstance(l3, UseResultOfTask)
+    assert l3.task.__name__ == "make_foo"
+    assert l3.args == ()
+    assert [t.task.__name__ for t in l3.dependents] == ["make_foofoo"]
+
+    l4 = _log[4]
+    assert isinstance(l4, CompletedTask)
+    assert l4.task.__name__ == "make_foofoo"
+    assert l4.args == ()
+    assert [t.task.__name__ for t in l4.dependents] == []
+
