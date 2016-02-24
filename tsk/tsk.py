@@ -202,7 +202,6 @@ class LogEntry(object):
 
     @property
     def dependents(self):
-        print self.dependency_chain
         return self.dependency_chain
 
 class EnteredTask(LogEntry):
