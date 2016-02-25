@@ -49,7 +49,7 @@ def make_index():
 @task
 def make_page(page):
     # We return the url of the rendered page here early, to not run
-    # in the lock i mentioned earlier. I would do this as well in
+    # in the loop i mentioned earlier. I would do this as well in
     # in make_index in reality, but i defered that trick for dramatic
     # purpose.
 
@@ -58,12 +58,12 @@ def make_page(page):
     # The task will go on even if it returned a result earlier on.
 
     # And we could still retreive the result from make_index. If there
-    # is a re
+    # is a result, the task will go on.
     index_url = yield make_index()
 
     rendered_pages.add(page)
 
-# Then just a task and all the tasks it depends on.
+# Then just run a task and all the tasks it depends on.
 make_page("one").run()
 
 # The engine ensures, that each task only runs once for every distinct
