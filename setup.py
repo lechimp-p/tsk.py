@@ -16,7 +16,7 @@ config = (
     { "description" : "A utility to run tasks."
     , "author" : "Richard Klees"
     , "author_email" : "richard.klees@rwth-aachen.de"
-    , "version" : "1.0"
+    , "version" : "0.7"
     , "install-requires" : ["nose"]
     , "packages" : ["tsk"]
     , "scripts" : []
