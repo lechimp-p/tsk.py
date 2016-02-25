@@ -11,6 +11,9 @@ import functools
 import types
 from collections import namedtuple
 
+
+# BASIC INTERFACE
+
 class task(object):
     """
     Turn an ordinary generator of tasks to a task.
@@ -26,10 +29,9 @@ class task(object):
     def __repr__(self):
         return self.fun.__repr__()
 
-
 class TaskCall(object):
     """
-    A call to a task
+    A call to a task. You can run this.
     """
     def __init__(self, task, args, kwargs):
         self.task = task
@@ -52,7 +54,65 @@ class TaskCall(object):
         return "<call to task %s at %s>" % (self.task.__repr__(), hex(id(self)))
 
 
+# ERRORS
+
+class TaskError(RuntimeError):
+    """ General error from this library. """
+    pass
+
+class LoopError(TaskError):
+    """ Tasks require results in a circular way. """
+    pass
+
+class DoubleResultError(TaskError):
+    """ A task announced two results. """
+    pass
+
+
+# LOGGING
+
+class LogEntry(object):
+    """
+    An entry send to TaskCall.run()s log parameter.
+
+    This is the base class, the classes below are used for signalling concrete
+    facts.
+    """
+    def __init__(self, task_call, dependency_chain):
+        self.task_call = task_call
+        self.dependency_chain = dependency_chain
+
+    @property
+    def task(self):
+        return self.task_call.task
+
+    @property
+    def args(self):
+        return self.task_call.args
+
+    @property
+    def dependents(self):
+        return self.dependency_chain
+
+class EnteredTask(LogEntry):
+    """ The runner entered a task. """
+    pass
+
+class CompletedTask(LogEntry):
+    """ A task was completed. """
+    pass
+
+class UseResultOfTask(LogEntry):
+    """ The result of a task was reused. """
+    pass
+
+
+# EXECUTION
+
 class VM(object):
+    """
+    This is the machine that runs the tasks and manages the results.
+    """
     def __init__(self, tc, log):
         self.tc = tc
         self.log = (lambda x: None) if log is None else log
@@ -186,38 +246,3 @@ class VM(object):
             else:
                 return tup
         return None
-
-class TaskError(RuntimeError):
-    pass
-
-class LoopError(TaskError):
-    pass
-
-class DoubleResultError(TaskError):
-    pass
-
-class LogEntry(object):
-    def __init__(self, task_call, dependency_chain):
-        self.task_call = task_call
-        self.dependency_chain = dependency_chain
-
-    @property
-    def task(self):
-        return self.task_call.task
-
-    @property
-    def args(self):
-        return self.task_call.args
-
-    @property
-    def dependents(self):
-        return self.dependency_chain
-
-class EnteredTask(LogEntry):
-    pass
-
-class CompletedTask(LogEntry):
-    pass
-
-class UseResultOfTask(LogEntry):
-    pass
