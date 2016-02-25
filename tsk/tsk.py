@@ -47,8 +47,13 @@ class TaskCall(object):
         return hash((self.task, self.args, self.kwargs))
 
     def __eq__(self, other):
+        if other is None:
+            return False
         return ((self.task, self.args, self.kwargs)
                 == (other.task, other.args, other.kwargs))
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         return "<call to task %s at %s>" % (self.task.__repr__(), hex(id(self)))
