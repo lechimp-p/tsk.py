@@ -76,6 +76,79 @@ class DoubleResultError(TaskError):
 
 # LOGGING
 
+class ConsoleLogger(object):
+    """
+    A very basic logger. Use this like
+
+        make_foo.run(log = ConsoleLogger())
+
+    or customize it to your needs (or even write your own one and contribute it).
+    """
+    entered_color = "white"
+    error_color = "red"
+    completed_color = "green"
+    use_result_color = "blue"
+    indentation = "    "
+
+    def __init__(self, pr = None):
+        from termcolor import colored
+        self.colored = colored
+
+        if pr is None:
+            def pr(s):
+                print(s)
+        self.pr = pr
+        self.level = 0
+        self.last = None
+        self.first_task_call = None
+
+    def __call__(self, msg):
+        if self.first_task_call is None:
+            self.first_task_call = msg.task_call
+        if self.last is None:
+            self.last = msg
+            return
+        last_entered = isinstance(self.last, EnteredTask)
+        last_completed = isinstance(self.last, CompletedTask)
+        cur_completed = isinstance(msg, CompletedTask)
+        # this happens when a task doe not invoke
+        # subtasks
+        if last_entered and cur_completed and self.last.task_call == msg.task_call:
+            self.print_msg(msg)
+            self.last = None
+        else:
+            if last_completed:
+                self.level -= 1
+            self.print_msg(self.last)
+            if last_entered:
+                self.level += 1
+            self.last = msg
+        # this happens when the first task completes
+        if cur_completed and self.first_task_call == msg.task_call:
+            self.level -= 1
+            self.print_msg(msg)
+
+    def print_msg(self, msg):
+        if isinstance(msg, EnteredTask):
+            color = self.entered_color
+        elif isinstance(msg, CompletedTask):
+            color = self.completed_color
+        elif isinstance(msg, UseResultOfTask):
+            color = self.use_result_color
+        #elif isinstance(msg, EnteredTask):
+        #    color = self.entered_color
+        else:
+            raise RuntimeError("Unknown message: %s" % msg)
+
+        ind = self.indentation * self.level
+        txt = self.format_msg(msg)
+
+        self.pr(self.colored(ind + txt, color))
+
+    def format_msg(self, msg):
+        return msg.task.__name__
+
+
 class LogEntry(object):
     """
     An entry send to TaskCall.run()s log parameter.
