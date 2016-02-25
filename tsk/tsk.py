@@ -245,6 +245,8 @@ class VM(object):
                 _tup.append(self.results[r])
                 if self.last_goal != r:
                     self.log(UseResultOfTask(r, self.get_dependents_of(r)))
+                else:
+                    self.last_goal = None
             tup = tuple(_tup)
             if len(tup) == 1:
                 return tup[0]
