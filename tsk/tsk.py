@@ -40,6 +40,12 @@ class TaskCall(object):
         self.kwargs = tup(**kwargs)
 
     def run(self, log = None):
+        """
+        Run this task.
+
+        You may provide a logger function that retreives LoggerEntries during
+        execution.
+        """
         vm = VM(self, log)
         return vm.result()
 
@@ -103,26 +109,40 @@ class ConsoleLogger(object):
         self.first_task_call = None
 
     def __call__(self, msg):
+        # We defer the printing of the messages to be able to react to tasks
+        # that don't require results from other tasks. This is a bit tricky...
+
+        # We need to know the first task to not defer the printing of the last
+        # entry to the log.
         if self.first_task_call is None:
             self.first_task_call = msg.task_call
+
+        # We need to know the last entry to be able to print it later on.
         if self.last is None:
             self.last = msg
             return
+
+        # We need to know some facts about the last and the current task to
+        # be able to react correctly and get the indentation right.
         last_entered = isinstance(self.last, EnteredTask)
         last_completed = isinstance(self.last, CompletedTask)
         cur_completed = isinstance(msg, CompletedTask)
-        # this happens when a task doe not invoke
-        # subtasks
+
+        # this happens when a task doe not invoke subtasks
         if last_entered and cur_completed and self.last.task_call == msg.task_call:
             self.print_msg(msg)
             self.last = None
         else:
             if last_completed:
                 self.level -= 1
+
             self.print_msg(self.last)
+
             if last_entered:
                 self.level += 1
+
             self.last = msg
+
         # this happens when the first task completes
         if cur_completed and self.first_task_call == msg.task_call:
             self.level -= 1
